@@ -5,6 +5,7 @@ import argparse
 import base64
 import json
 import re
+import channel_pb2
 
 def decrypt_mesh_url(murl: str):
     """ Decode a provided URL into the meshtastic channel information """
@@ -12,10 +13,25 @@ def decrypt_mesh_url(murl: str):
 
     data = re.search(r'#(.*)',  murl)
     binary_data = base64.urlsafe_b64decode(data.group(1) + '==')
-    settings_data = binary_data.decode('utf-8', errors='ignore')
-    print(f"[+] Unserialized data: {settings_data}")
+    print(f"[+] Unserialized data: {binary_data}")
+    
+    channel = channel_pb2.Channel()
+    channel.ParseFromString(binary_data)
 
-    return binary_data
+    module_settings = channel_pb2.ModuleSettings()
+    module_settings.ParseFromString(binary_data)
+
+    channel_settings = channel_pb2.ChannelSettings()
+    channel_settings.ParseFromString(binary_data)
+
+    print(f"Deserialized Channel:\n {channel}")
+    print(f"Deserialized Channel Settings:\n {channel_settings}")
+    print(f"Deserialized Module Settings:\n {module_settings}")
+
+    print(f"Channel Number: {channel.settings.channel_num}")
+    print(f"Channel Name: {channel_settings.name}")
+    print(f"Channel PSK: {channel_settings.psk}")
+    print(f"Channel ID: {channel_settings.id}")
 
 def main():
     parser = argparse.ArgumentParser(description="Meshtastic URL decoder.")
