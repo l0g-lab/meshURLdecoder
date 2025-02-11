@@ -5,7 +5,9 @@ import argparse
 import base64
 import json
 import re
-import channel_pb2
+#import channel_pb2
+from meshtastic.protobuf import admin_pb2, apponly_pb2, channel_pb2, localonly_pb2, mesh_pb2, portnums_pb2
+from meshtastic import util
 
 def decrypt_mesh_url(murl: str):
     """ Decode a provided URL into the meshtastic channel information """
@@ -30,7 +32,7 @@ def decrypt_mesh_url(murl: str):
 
     print(f"Channel Number: {channel.settings.channel_num}")
     print(f"Channel Name: {channel_settings.name}")
-    print(f"Channel PSK: {channel_settings.psk}")
+    print(f"Channel PSK: {util.pskToString(channel_settings.psk)}")
     print(f"Channel ID: {channel_settings.id}")
 
 def main():
