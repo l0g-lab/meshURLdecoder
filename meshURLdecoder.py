@@ -16,23 +16,32 @@ def decrypt_mesh_url(murl: str):
     binary_data = base64.urlsafe_b64decode(data.group(1) + '==')
     print(f"[+] Unserialized data: {binary_data}")
     
-    channel = channel_pb2.Channel()
-    channel.ParseFromString(binary_data)
+    #channel = channel_pb2.Channel()
+    #channel.ParseFromString(binary_data)
+    #module_settings = channel_pb2.ModuleSettings()
+    #module_settings.ParseFromString(binary_data)
+    #channel_settings = channel_pb2.ChannelSettings()
+    #channel_settings.ParseFromString(binary_data)
 
-    module_settings = channel_pb2.ModuleSettings()
-    module_settings.ParseFromString(binary_data)
+    app_only = apponly_pb2.ChannelSet()
+    app_only.ParseFromString(binary_data)
 
-    channel_settings = channel_pb2.ChannelSettings()
-    channel_settings.ParseFromString(binary_data)
+    psk_enabled = ord(app_only.settings[0].psk)
+    
+    print("---------------------------------------------------")
+    print(f"[+] Decoded data:\n{app_only}")
+    print("---------------------------------------------------")
 
-    print(f"Deserialized Channel:\n {channel}")
-    print(f"Deserialized Channel Settings:\n {channel_settings}")
-    print(f"Deserialized Module Settings:\n {module_settings}")
-
-    print(f"Channel Number: {channel.settings.channel_num}")
-    print(f"Channel Name: {channel_settings.name}")
-    print(f"Channel PSK: {util.pskToString(channel_settings.psk)}")
-    print(f"Channel ID: {channel_settings.id}")
+    print(f"[+][+] Channel Number: {app_only.settings[1].id}")
+    print(f"[+][+] Channel Name: {app_only.settings[1].name}")
+    #print(f"[+][+] Channel PSK Enabled: {app_only.settings[0]}", end="")
+    print(f"[+][+] Channel PSK Enabled: {psk_enabled}")
+    if psk_enabled == 1:
+        print(f"[+][+] Channel PSK: {util.pskToString(app_only.settings[1].psk)}")
+        #print(f"Channel PSK: {app_only.settings[1].psk}")
+    else:
+        print(f"[+][+] PSK Disabled!!")
+    #print(f"Lora Config: {app_only.lora_config}")
 
 def main():
     parser = argparse.ArgumentParser(description="Meshtastic URL decoder.")
